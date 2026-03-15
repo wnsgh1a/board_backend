@@ -1,6 +1,7 @@
 package com.example.board.controller;
 
 import com.example.board.dto.PostCreateRequest;
+import com.example.board.dto.PostResponse;
 import com.example.board.entity.Post;
 import com.example.board.service.PostService;
 import lombok.RequiredArgsConstructor;
@@ -13,9 +14,16 @@ public class PostController {
 
     private final PostService postService;
 
-    // 게시글 작성 API (POST 요청)
+    // 기존 작성 API (반환 타입 수정!)
     @PostMapping
-    public Post createPost(@RequestBody PostCreateRequest request) {
+    public PostResponse createPost(@RequestBody PostCreateRequest request) {
         return postService.createPost(request);
+    }
+
+    // [NEW] 게시글 단건 조회 API (GET 요청)
+    // 주소 예시: http://localhost:8080/api/posts/1
+    @GetMapping("/{id}")
+    public PostResponse getPost(@PathVariable Long id) {
+        return postService.getPost(id);
     }
 }
