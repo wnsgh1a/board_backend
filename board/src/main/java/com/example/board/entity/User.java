@@ -3,6 +3,7 @@ package com.example.board.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -11,6 +12,7 @@ import java.time.LocalDateTime;
 @Entity // "이 클래스는 DB 테이블과 1:1로 매칭되는 클래스야!" 라고 알려주는 역할
 @Table(name = "users") // 테이블 이름은 'users'로 할게 (user는 DB 예약어라 충돌날 수 있어서 보통 users로 씁니다)
 @Getter // 롬복 마법 1: 복잡한 Getter 코드를 안 짜도 알아서 만들어줌
+@Setter
 @NoArgsConstructor // 롬복 마법 2: 기본 생성자를 알아서 만들어줌
 public class User {
 

@@ -1,0 +1,9 @@
+### 유저 생성 (회원가입) 테스트
+POST http://localhost:8080/api/users
+Content-Type: application/json
+
+{
+  "email": "test@google.com",
+  "password": "mypassword123!",
+  "nickname": "테스트계정"
+}
