@@ -9,6 +9,9 @@ import com.example.board.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class PostService {
@@ -38,6 +41,18 @@ public class PostService {
 
         // 찾은 게시글을 안전한 바구니에 담아서 리턴!
         return new PostResponse(post);
+    }
+
+    // [NEW] 게시글 전체 목록 조회 로직
+    public List<PostResponse> getAllPosts() {
+        // 1. DB에서 모든 게시글(Post)을 싹 다 가져옵니다.
+        List<Post> posts = postRepository.findAll();
+
+        // 2. 가져온 날것의 게시글들을 안전한 바구니(PostResponse)에 하나씩 옮겨 담아서 리스트로 묶어줍니다!
+        // (자바의 Stream이라는 아주 편리한 문법을 사용했습니다 ㅎㅎ)
+        return posts.stream()
+                .map(PostResponse::new) // "Post를 줄 테니 PostResponse로 바꿔와라!"
+                .collect(Collectors.toList());
     }
 
 }
