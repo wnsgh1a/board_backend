@@ -6,9 +6,10 @@ import com.example.board.entity.Post;
 import com.example.board.entity.User;
 import com.example.board.repository.PostRepository;
 import com.example.board.repository.UserRepository;
+import com.example.board.dto.PostUpdateRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -55,4 +56,28 @@ public class PostService {
                 .collect(Collectors.toList());
     }
 
+    // [NEW] 게시글 수정 로직
+    @Transactional // 💡 마법: 이 메서드가 끝날 때, 변경된 데이터가 있으면 알아서 DB에 저장(UPDATE)해 줍니다!
+    public PostResponse updatePost(Long id, PostUpdateRequest request) {
+        // 1. 수정할 게시글을 찾습니다.
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("게시글이 존재하지 않습니다. id=" + id));
+
+        // 2. 아까 뚫어둔 Setter를 이용해서 제목과 내용을 새것으로 덮어씌웁니다.
+        post.setTitle(request.getTitle());
+        post.setContent(request.getContent());
+
+        // 3. 수정한 결과를 안전한 바구니에 담아서 돌려줍니다.
+        return new PostResponse(post);
+    }
+
+    // [NEW] 게시글 삭제 로직
+    public void deletePost(Long id) {
+        // 1. 삭제할 게시글을 찾습니다.
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("게시글이 존재하지 않습니다. id=" + id));
+
+        // 2. 가차 없이 DB에서 날려버립니다!
+        postRepository.delete(post);
+    }
 }

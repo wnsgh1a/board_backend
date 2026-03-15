@@ -2,6 +2,7 @@ package com.example.board.controller;
 
 import com.example.board.dto.PostCreateRequest;
 import com.example.board.dto.PostResponse;
+import com.example.board.dto.PostUpdateRequest;
 import com.example.board.entity.Post;
 import com.example.board.service.PostService;
 import lombok.RequiredArgsConstructor;
@@ -34,5 +35,19 @@ public class PostController {
     @GetMapping
     public List<PostResponse> getAllPosts() {
         return postService.getAllPosts();
+    }
+
+    // [NEW] 게시글 수정 API (PUT 요청)
+    // 주소 예시: http://localhost:8080/api/posts/1
+    @PutMapping("/{id}")
+    public PostResponse updatePost(@PathVariable Long id, @RequestBody PostUpdateRequest request) {
+        return postService.updatePost(id, request);
+    }
+
+    // [NEW] 게시글 삭제 API (DELETE 요청)
+    @DeleteMapping("/{id}")
+    public String deletePost(@PathVariable Long id) {
+        postService.deletePost(id);
+        return "게시글 삭제가 완료되었습니다!"; // 삭제 성공 메시지를 프론트엔드에 던져줍니다.
     }
 }
