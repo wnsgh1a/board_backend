@@ -8,6 +8,7 @@ import com.example.board.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
 import java.util.List;
 
@@ -19,8 +20,11 @@ public class PostController {
     private final PostService postService;
 
     // 기존 작성 API (반환 타입 수정!)
+// [MODIFIED] 글 작성 API에 @Valid 수문장 추가!
     @PostMapping
-    public PostResponse createPost(@RequestBody PostCreateRequest request) {
+    public PostResponse createPost(
+            // 💡 @Valid: "이 바구니(request) 안에 빈칸 있는지 빡세게 검사해!" 라는 뜻입니다.
+            @Valid @RequestBody PostCreateRequest request) {
         return postService.createPost(request);
     }
 

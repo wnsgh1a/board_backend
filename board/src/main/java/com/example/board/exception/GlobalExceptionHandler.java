@@ -3,6 +3,7 @@ package com.example.board.exception;
 import com.example.board.dto.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -18,6 +19,19 @@ public class GlobalExceptionHandler {
         ErrorResponse response = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage());
 
         // 2. HTTP 상태 코드도 400으로 세팅해서 프론트엔드로 쏴줍니다!
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    // [NEW] @Valid 검사에 걸려서 빈칸 에러가 났을 때 처리하는 로직!
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException e) {
+
+        // 1. 우리가 DTO에 적어둔 message("제목은 텅 빌 수 없습니다!")를 쏙 뽑아옵니다.
+        String errorMessage = e.getBindingResult().getAllErrors().get(0).getDefaultMessage();
+
+        // 2. 예쁜 에러 바구니에 400 상태 코드와 함께 담습니다.
+        ErrorResponse response = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), errorMessage);
+
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 }
