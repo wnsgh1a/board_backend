@@ -1,6 +1,8 @@
 package com.example.board.service;
 
 import com.example.board.dto.CommentCreateRequest;
+import com.example.board.dto.CommentResponse;
+import com.example.board.dto.CommentUpdateRequest;
 import com.example.board.entity.Comment;
 import com.example.board.entity.Post;
 import com.example.board.entity.User;
@@ -9,6 +11,7 @@ import com.example.board.repository.PostRepository;
 import com.example.board.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -37,5 +40,29 @@ public class CommentService {
         commentRepository.save(comment);
 
         return "댓글이 성공적으로 작성되었습니다!";
+    }
+
+    // [NEW] 댓글 수정 로직
+    @Transactional // 💡 변경된 내용(content)을 메서드 끝날 때 알아서 DB에 덮어씌워 주는 마법!
+    public CommentResponse updateComment(Long commentId, CommentUpdateRequest request) {
+        // 1. 수정할 댓글을 DB에서 찾습니다.
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new IllegalArgumentException("댓글이 존재하지 않습니다."));
+
+        // 2. 내용을 새것으로 싹 갈아 끼웁니다.
+        comment.setContent(request.getContent());
+
+        // 3. 수정한 결과를 예쁜 바구니에 담아서 돌려줍니다.
+        return new CommentResponse(comment);
+    }
+
+    // [NEW] 댓글 삭제 로직
+    public void deleteComment(Long commentId) {
+        // 1. 삭제할 댓글을 찾습니다.
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new IllegalArgumentException("댓글이 존재하지 않습니다."));
+
+        // 2. DB에서 가차 없이 날려버립니다!
+        commentRepository.delete(comment);
     }
 }

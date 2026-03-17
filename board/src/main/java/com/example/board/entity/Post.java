@@ -8,6 +8,8 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "posts")
@@ -41,4 +43,10 @@ public class Post {
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    // [NEW] 게시글 입장에서 1:N 관계로 댓글들을 품습니다!
+    // mappedBy = "post" : Comment 엔티티의 'post' 필드와 연결된다는 뜻!
+    // cascade, orphanRemoval : 게시글이 삭제되면 밑에 달린 댓글들도 알아서 싹 지워지는 무시무시한(편리한) 마법!
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> comments = new ArrayList<>();
 }
