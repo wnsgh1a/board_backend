@@ -6,6 +6,7 @@ import com.example.board.dto.PostUpdateRequest;
 import com.example.board.entity.Post;
 import com.example.board.service.PostService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -32,9 +33,16 @@ public class PostController {
 
     // [NEW] 게시글 전체 목록 조회 API (GET 요청)
     // 주소 예시: http://localhost:8080/api/posts
+// [MODIFIED] 게시글 전체 목록 페이징 조회 API (GET 요청)
+    // 주소 예시: http://localhost:8080/api/posts?page=1&size=10
     @GetMapping
-    public List<PostResponse> getAllPosts() {
-        return postService.getAllPosts();
+    public Page<PostResponse> getAllPosts(
+            // @RequestParam: 주소창 뒤에 ?page=1 처럼 넘어오는 값을 받습니다.
+            // 만약 프론트엔드가 아무것도 안 보내면 기본값(defaultValue)으로 1페이지, 10개씩을 세팅합니다!
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size) {
+
+        return postService.getAllPosts(page, size);
     }
 
     // [NEW] 게시글 수정 API (PUT 요청)

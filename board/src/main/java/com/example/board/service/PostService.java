@@ -8,6 +8,10 @@ import com.example.board.repository.PostRepository;
 import com.example.board.repository.UserRepository;
 import com.example.board.dto.PostUpdateRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
@@ -45,15 +49,21 @@ public class PostService {
     }
 
     // [NEW] 게시글 전체 목록 조회 로직
-    public List<PostResponse> getAllPosts() {
-        // 1. DB에서 모든 게시글(Post)을 싹 다 가져옵니다.
-        List<Post> posts = postRepository.findAll();
+// [MODIFIED] 게시글 전체 목록 조회 (페이징 적용!)
+    // 리턴 타입이 List에서 Page로 바뀌었습니다!
+    public Page<PostResponse> getAllPosts(int page, int size) {
 
-        // 2. 가져온 날것의 게시글들을 안전한 바구니(PostResponse)에 하나씩 옮겨 담아서 리스트로 묶어줍니다!
-        // (자바의 Stream이라는 아주 편리한 문법을 사용했습니다 ㅎㅎ)
-        return posts.stream()
-                .map(PostResponse::new) // "Post를 줄 테니 PostResponse로 바꿔와라!"
-                .collect(Collectors.toList());
+        // 💡 핵심 1: 스프링(JPA)은 페이지 번호를 0부터 셉니다. (개발자들 종특이죠 ㅋㅋㅋ)
+        // 그래서 프론트엔드가 1페이지를 달라고 하면, 우리는 서버에서 0페이지로 바꿔서 찾아야 합니다.
+        // 그리고 글은 무조건 최신순(createdAt 기준으로 내림차순 DESC)으로 가져옵니다!
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("createdAt").descending());
+
+        // 💡 핵심 2: DB 창고에서 페이징 룰(pageable)에 맞게 잘라서 가져옵니다.
+        Page<Post> posts = postRepository.findAll(pageable);
+
+        // 💡 핵심 3: 잘라온 날것의 게시글(Post)들을 안전한 바구니(PostResponse)로 싹 바꿔줍니다.
+        // List 때 썼던 stream().map() 보다 훨씬 짧고 예쁩니다!
+        return posts.map(PostResponse::new);
     }
 
     // [NEW] 게시글 수정 로직
