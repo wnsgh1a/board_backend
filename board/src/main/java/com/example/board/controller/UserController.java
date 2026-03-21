@@ -1,9 +1,9 @@
 package com.example.board.controller;
 
-import com.example.board.dto.UserCreateRequest;
 import com.example.board.dto.UserResponse;
-import com.example.board.entity.User;
+import com.example.board.dto.UserSignUpRequest;
 import com.example.board.service.UserService;
+import jakarta.validation.Valid; // 💡 입구 컷 도구
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,16 +14,16 @@ public class UserController {
 
     private final UserService userService;
 
-    @PostMapping
-    public User createUser(@RequestBody UserCreateRequest request) {
-        return userService.createUser(request);
+    // [MODIFIED] 허술했던 기존 생성 API를 강력한 회원가입 API로 변경!
+    // 주소: http://localhost:8080/api/users/signup
+    @PostMapping("/signup")
+    public String signUp(@Valid @RequestBody UserSignUpRequest request) {
+        return userService.signUp(request);
     }
 
-    // 유저 조회 API (GET 요청)
-    // 주소 예시: http://localhost:8080/api/users/1
+    // 유저 조회 API (기존 코드 그대로 유지!)
     @GetMapping("/{id}")
     public UserResponse getUser(@PathVariable Long id) {
-        // @PathVariable: URL 주소에 있는 {id} 숫자를 쏙 뽑아서 변수로 만들어줍니다.
         return userService.getUser(id);
     }
 }
