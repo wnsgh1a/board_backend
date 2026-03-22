@@ -1,9 +1,11 @@
 package com.example.board.service;
 
+import com.example.board.dto.UserLoginRequest;
 import com.example.board.dto.UserResponse;
 import com.example.board.dto.UserSignUpRequest; // 👈 새로 만든 DTO!
 import com.example.board.entity.User;
 import com.example.board.repository.UserRepository;
+import com.example.board.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder; // 💡 암호화 도구
 import org.springframework.stereotype.Service;
@@ -15,6 +17,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder; // 💡 암호화 기계 출동!
+    private final JwtUtil jwtUtil;
 
     // 1. 유저 생성 로직 (진짜 실무형 회원가입으로 진화!)
     @Transactional
@@ -36,6 +39,22 @@ public class UserService {
         userRepository.save(user);
 
         return "회원가입이 완료되었습니다! 환영합니다 🎉";
+    }
+
+    // [NEW] 대망의 로그인 로직!
+    public String login(UserLoginRequest request) {
+        // 1. 창구에서 받은 이메일로 DB에서 유저를 찾습니다.
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new IllegalArgumentException("가입되지 않은 이메일입니다."));
+
+        // 2. 🚨 가장 중요한 비밀번호 비교!
+        // passwordEncoder.matches(날것의 입력값, DB의 암호화된 값)
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("잘못된 비밀번호입니다.");
+        }
+
+        // 3. 신원 확인이 끝났으니, 팔찌 기계를 돌려서 JWT 토큰을 발급합니다!
+        return jwtUtil.createToken(user.getEmail(), user.getRole());
     }
 
     // 2. 유저 단건 조회 로직 (기존 코드 그대로 유지!)

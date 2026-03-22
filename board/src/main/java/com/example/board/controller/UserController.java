@@ -1,5 +1,6 @@
 package com.example.board.controller;
 
+import com.example.board.dto.UserLoginRequest;
 import com.example.board.dto.UserResponse;
 import com.example.board.dto.UserSignUpRequest;
 import com.example.board.service.UserService;
@@ -25,5 +26,12 @@ public class UserController {
     @GetMapping("/{id}")
     public UserResponse getUser(@PathVariable Long id) {
         return userService.getUser(id);
+    }
+
+    // [NEW] 로그인 API (POST 요청)
+    // 주소: http://localhost:8080/api/users/login
+    @PostMapping("/login")
+    public String login(@RequestBody UserLoginRequest request) {
+        return userService.login(request);
     }
 }
