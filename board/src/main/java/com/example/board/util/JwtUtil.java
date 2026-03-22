@@ -27,4 +27,27 @@ public class JwtUtil {
                 .signWith(key, SignatureAlgorithm.HS256) // 기계의 관리자 도장 쾅!
                 .compact(); // 압축해서 긴 문자열로 반환!
     }
+
+    // [NEW] 1. 포스트맨에서 "Bearer eyJhb..." 형태로 보내면, 앞의 "Bearer " 글자를 잘라내고 진짜 토큰만 꺼냅니다!
+    public String substringToken(String tokenValue) {
+        if (tokenValue != null && tokenValue.startsWith("Bearer ")) {
+            return tokenValue.substring(7);
+        }
+        throw new IllegalArgumentException("토큰이 없거나 형식이 틀렸습니다.");
+    }
+
+    // [NEW] 2. 토큰이 우리가 만든 진짜인지, 유효기간이 안 지났는지 깐깐하게 검사합니다.
+    public boolean validateToken(String token) {
+        try {
+            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
+            return true; // 진짜면 통과!
+        } catch (Exception e) {
+            return false; // 짭이거나 기간 지났으면 탈락!
+        }
+    }
+
+    // [NEW] 3. 합격한 토큰에서 주인의 이름(이메일)을 쏙 뽑아옵니다.
+    public String getUserEmailFromToken(String token) {
+        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getSubject();
+    }
 }
