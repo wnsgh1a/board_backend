@@ -20,7 +20,7 @@ public class PostController {
     @PostMapping
     public PostResponse createPost(
             @Valid @RequestBody PostCreateRequest request,
-            Authentication authentication) { // 💡 시큐리티가 준 신분증
+            Authentication authentication) {
         return postService.createPost(request, authentication.getName());
     }
 
@@ -37,13 +37,18 @@ public class PostController {
     }
 
     @PutMapping("/{id}")
-    public PostResponse updatePost(@PathVariable Long id, @RequestBody PostUpdateRequest request) {
-        return postService.updatePost(id, request);
+    public PostResponse updatePost(
+            @PathVariable Long id,
+            @RequestBody PostUpdateRequest request,
+            Authentication authentication) {
+        return postService.updatePost(id, request, authentication.getName());
     }
 
     @DeleteMapping("/{id}")
-    public String deletePost(@PathVariable Long id) {
-        postService.deletePost(id);
+    public String deletePost(
+            @PathVariable Long id,
+            Authentication authentication) {
+        postService.deletePost(id, authentication.getName());
         return "게시글 삭제가 완료되었습니다!";
     }
 }

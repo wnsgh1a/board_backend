@@ -22,7 +22,6 @@ public class PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
 
-    // 💡 [핵심] userId 대신 email을 받아서 유저를 찾습니다!
     public PostResponse createPost(PostCreateRequest request, String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
@@ -49,17 +48,27 @@ public class PostService {
     }
 
     @Transactional
-    public PostResponse updatePost(Long id, PostUpdateRequest request) {
+    public PostResponse updatePost(Long id, PostUpdateRequest request, String email) { // 💡 email 파라미터 추가!
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("게시글이 존재하지 않습니다. id=" + id));
+
+        if (!post.getUser().getEmail().equals(email)) {
+            throw new IllegalArgumentException("작성자만 수정할 수 있습니다.");
+        }
+
         post.setTitle(request.getTitle());
         post.setContent(request.getContent());
         return new PostResponse(post);
     }
 
-    public void deletePost(Long id) {
+    public void deletePost(Long id, String email) { // 💡 email 파라미터 추가!
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("게시글이 존재하지 않습니다. id=" + id));
+
+        if (!post.getUser().getEmail().equals(email)) {
+            throw new IllegalArgumentException("작성자만 삭제할 수 있습니다.");
+        }
+
         postRepository.delete(post);
     }
 }
